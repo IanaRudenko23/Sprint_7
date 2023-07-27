@@ -1,166 +1,100 @@
-import io.restassured.RestAssured;
+import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
-import org.example.Courier;
-import org.example.OnlyLogin;
-import org.junit.After;
-import org.junit.Before;
+import org.example.data.Courier;
+import org.example.data.OnlyLogin;
 import org.junit.Test;
 
-import static io.restassured.RestAssured.given;
+import static org.example.client.CourierClient.createCourier;
+import static org.example.client.CourierClient.loginCourier;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.nullValue;
 
-public class LoginCourierTest {
-    public static String login = "ninja9_0_1";
-    public static String password = "1234";
-    @Before
-    public void setUp() {
-        RestAssured.baseURI = "http://qa-scooter.praktikum-services.ru/";
-    }
-    @After
-    public void tearDown() {
-        CourierUtils.deleteCourier(login, password);
-    }
+public class LoginCourierTest extends BaseCourierTest {
 
     @Test
-    public void loginCourierSuccess (){//проверили статус успешной авторизации курьера
-        Courier courier = new Courier(login,password,"auuu");
-        Response response =
-                given()
-                        .header("Content-type", "application/json")
-                        .and()
-                        .body(courier)
-                        .when()
-                        .post("/api/v1/courier");
+    @DisplayName("Успешная авторизация зарегистрированного курьера")
+    public void loginCourierSuccess() {//проверили статус успешной авторизации курьера
+        Courier courier = new Courier(login, password, "auuu");
+        Response response = createCourier(courier);
         response.then().assertThat().body("ok", equalTo(true))
                 .and()
                 .statusCode(201);
-        courier = new Courier(login,password);
-              response =   given()
-                        .header("Content-type", "application/json")
-                        .and()
-                        .body(courier)
-                        .when()
-                        .post("/api/v1/courier/login");
-        response.then().assertThat().body("id", notNullValue())
+        courier = new Courier(login, password);
+        response = loginCourier(courier);
+        response.then().assertThat().statusCode(200)
                 .and()
-                .statusCode(200);
-
+                .body("id", notNullValue());
     }
 
     @Test
-    public void loginCourierWithoutPassword (){//попытка авторизоваться без пароля
-        Courier courier = new Courier(login,password,"auuu");
-        Response response =
-                given()
-                        .header("Content-type", "application/json")
-                        .and()
-                        .body(courier)
-                        .when()
-                        .post("/api/v1/courier");
-        response.then().assertThat().body("ok", equalTo(true))
+    @DisplayName("Невозмонжо авторизоваться без пароля")
+    public void loginCourierWithoutPassword() {//попытка авторизоваться без пароля
+        Courier courier = new Courier(login, password, "auuu");
+        Response response = createCourier(courier);
+        response.then().assertThat().statusCode(201)
                 .and()
-                .statusCode(201);
+                .body("ok", equalTo(true));
         OnlyLogin onlyLogin = new OnlyLogin(login);
-               response =  given()
-                        .header("Content-type", "application/json")
-                        .and()
-                        .body(onlyLogin)
-                        .when()
-                        .post("/api/v1/courier/login");
-        response.then().assertThat().body("id", nullValue())
+        response = loginCourier(courier);
+        response.then().assertThat().statusCode(400)
                 .and()
-                .statusCode(400);
+                .body("id", nullValue());
     }
 
     @Test
-    public void loginCourierWithoutExistedLoginAndPassword (){//попытка залогиниться без существующей учетной записи
-        Courier courier = new Courier("amandarin",password);
-        Response response = given()
-                .header("Content-type", "application/json")
+    @DisplayName("Невозможно авторизоваться без создания учетной записи")
+    public void loginCourierWithoutExistedLoginAndPassword() {//попытка залогиниться без существующей учетной записи
+        Courier courier = new Courier("amandarin", password);
+        Response response = loginCourier(courier);
+        response.then().assertThat().statusCode(404)
                 .and()
-                .body(courier)
-                .when()
-                .post("/api/v1/courier/login");
-        response.then().assertThat().body("id", nullValue())
-                .and()
-                .statusCode(404);
-
+                .body("id", nullValue());
     }
 
-  @Test
-    public void loginCourierWithoutData (){//попытка авторизоваться без логина и пароля
-        Courier courier = new Courier(login,password,"auuu");
-        Response response =
-                given()
-                        .header("Content-type", "application/json")
-                        .and()
-                        .body(courier)
-                        .when()
-                        .post("/api/v1/courier");
-        response.then().assertThat().body("ok", equalTo(true))
+    @Test
+    @DisplayName("Невозможно авторизоваться без логина и пароля")
+    public void loginCourierWithoutData() {//попытка авторизоваться без логина и пароля
+        Courier courier = new Courier(login, password, "auuu");
+        Response response = createCourier(courier);
+        response.then().assertThat().statusCode(201)
                 .and()
-                .statusCode(201);
+                .body("ok", equalTo(true));
         courier = new Courier();
-        response =  given()
-                .header("Content-type", "application/json")
+        response = loginCourier(courier);
+        response.then().assertThat().statusCode(400)
                 .and()
-                .body(courier)
-                .when()
-                .post("/api/v1/courier/login");
-        response.then().assertThat().body("id", nullValue())
-                .and()
-                .statusCode(400);
+                .body("id", nullValue());
     }
 
     @Test
-    public void loginCourierWithoutLogin (){//попытка авторизоваться без логина
-        Courier courier = new Courier(login,password,"auuu");
-        Response response =
-                given()
-                        .header("Content-type", "application/json")
-                        .and()
-                        .body(courier)
-                        .when()
-                        .post("/api/v1/courier");
-        response.then().assertThat().body("ok", equalTo(true))
+    @DisplayName("Невозможно авторизоваться без логина")
+    public void loginCourierWithoutLogin() {//попытка авторизоваться без логина
+        Courier courier = new Courier(login, password, "auuu");
+        Response response = createCourier(courier);
+        response.then().assertThat().statusCode(201)
                 .and()
-                .statusCode(201);
-        courier = new Courier(null,password);
-        response =  given()
-                .header("Content-type", "application/json")
+                .body("ok", equalTo(true));
+        courier = new Courier(null, password);
+        response = loginCourier(courier);
+        response.then().assertThat().statusCode(400)
                 .and()
-                .body(courier)
-                .when()
-                .post("/api/v1/courier/login");
-        response.then().assertThat().body("id", nullValue())
-                .and()
-                .statusCode(400);
+                .body("id", nullValue());
     }
+
     @Test
-    public void loginCourierWithLoginMistake (){//попытка залогиниться с ошибкой в логине
-        Courier courier = new Courier(login,password,"auuu");
-        Response response =
-                given()
-                        .header("Content-type", "application/json")
-                        .and()
-                        .body(courier)
-                        .when()
-                        .post("/api/v1/courier");
-        response.then().assertThat().body("ok", equalTo(true))
+    @DisplayName("Невозможно авторизоваться если в логине допущена ошибка")
+    public void loginCourierWithLoginMistake() {//попытка залогиниться с ошибкой в логине
+        Courier courier = new Courier(login, password, "auuu");
+        Response response = createCourier(courier);
+        response.then().assertThat().statusCode(201)
                 .and()
-                .statusCode(201);
-        courier = new Courier("ninja9_0_2",password);
-        response =  given()
-                .header("Content-type", "application/json")
+                .body("ok", equalTo(true));
+        courier = new Courier("ninja9_0_2", password);
+        response = loginCourier(courier);
+        response.then().assertThat().statusCode(404)
                 .and()
-                .body(courier)
-                .when()
-                .post("/api/v1/courier/login");
-        response.then().assertThat().body("id", nullValue())
-                .and()
-                .statusCode(404);
+                .body("id", nullValue());
     }
 
 }

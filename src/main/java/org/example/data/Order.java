@@ -1,4 +1,4 @@
-package org.example;
+package org.example.data;
 
 import java.util.List;
 
@@ -12,7 +12,8 @@ public class Order {//аттрибуты заказа Самоката
     private String deliveryDate;
     private String comment;
     private List<String> color;
-    public Order(){
+
+    public Order() {
 
     }
 

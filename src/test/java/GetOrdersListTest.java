@@ -1,23 +1,15 @@
-import io.restassured.RestAssured;
+import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
-import org.junit.Before;
+import org.example.client.OrderClient;
 import org.junit.Test;
 
-import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.notNullValue;
 
-public class GetOrdersListTest {
-    @Before
-    public void setUp() {
-        RestAssured.baseURI = "http://qa-scooter.praktikum-services.ru/";
-    }
+public class GetOrdersListTest extends BaseTest {
     @Test
+    @DisplayName("Получение списка заказов")
     public void getOrdersList() {
-        Response response =
-                given()
-                        .header("Content-type", "application/json")
-                        .when()
-                        .get("/api/v1/orders");
+        Response response = OrderClient.getOrdersList();
         response.then().assertThat().body("orders", notNullValue())
                 .and()
                 .statusCode(200);

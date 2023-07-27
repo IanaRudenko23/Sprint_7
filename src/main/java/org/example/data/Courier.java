@@ -1,11 +1,11 @@
-package org.example;
+package org.example.data;
 
 public class Courier {
     private String login;
     private String password;
     private String firstName;
 
-    public Courier(){
+    public Courier() {
     }
 
     public Courier(String login, String password) {

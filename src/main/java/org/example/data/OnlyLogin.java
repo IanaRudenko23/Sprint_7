@@ -1,9 +1,9 @@
-package org.example;
+package org.example.data;
 
 public class OnlyLogin {//создала класс чтобы понять почему тест с логином курьера без пароля падает
     private String login;
 
-    public OnlyLogin (String login){
+    public OnlyLogin(String login) {
         this.login = login;
     }
 

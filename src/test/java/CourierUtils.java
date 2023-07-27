@@ -1,9 +1,12 @@
 import io.restassured.response.Response;
-import org.example.Courier;
+import org.example.data.Courier;
 
 import static io.restassured.RestAssured.given;
 
 public class CourierUtils {
+
+    public static final String BASE_URI = "http://qa-scooter.praktikum-services.ru/";
+
     public static void deleteCourier(String login, String password) {//метод удалить курьера после создания
         Response response = given()
                 .header("Content-type", "application/json")

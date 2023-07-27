@@ -1,79 +1,43 @@
-import io.restassured.RestAssured;
+import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
-import org.example.Courier;
-import org.junit.After;
-import org.junit.Before;
+import org.example.data.Courier;
 import org.junit.Test;
 
-import static io.restassured.RestAssured.given;
+import static org.example.client.CourierClient.createCourier;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.nullValue;
 
-public class CreateCourierTest {
-
-    String login = "ninja9_0_1";
-    String password = "1234";
-
-    @Before
-    public void setUp() {
-        RestAssured.baseURI = "http://qa-scooter.praktikum-services.ru/";
-    }
-
-    @After
-    public void tearDown() {
-        CourierUtils.deleteCourier(login, password);
-    }
+public class CreateCourierTest extends BaseCourierTest {
 
     @Test
+    @DisplayName("Успешно создали новго курьера")
     public void createNewCourier() {//проверили успешный кейс создания курьера
         Courier courier = new Courier(login, password, "saske");
-        Response response =
-                given()
-                        .header("Content-type", "application/json")
-                        .and()
-                        .body(courier)
-                        .when()
-                        .post("/api/v1/courier");
-        response.then().assertThat().body("ok", equalTo(true))
+        Response response = createCourier(courier);
+        response.then().assertThat().statusCode(201)
                 .and()
-                .statusCode(201);
+                .body("ok", equalTo(true));
     }
 
     @Test
+    @DisplayName("Невозможно создать курьера без ввода обязательных полей")
     public void createCourierWithoutData() {//проверили что нельзя создать курьера без обязательных полей
         Courier courier = new Courier();
-        Response response =
-                given()
-                        .header("Content-type", "application/json")
-                        .and()
-                        .body(courier)
-                        .when()
-                        .post("/api/v1/courier");
-        response.then().assertThat().body("data.name", nullValue())
+        Response response = createCourier(courier);
+        response.then().assertThat().statusCode(400)
                 .and()
-                .statusCode(400);
+                .body("data.name", nullValue());
     }
 
     @Test
+    @DisplayName("Невозможно создать двух одинаковых курьеров")
     public void createCourierWithLoginExisted() {//проверили что нельзя создать двух одинаковых курьеров
         Courier courier = new Courier(login, password, "auuuu");
-        Response response =
-                given()
-                        .header("Content-type", "application/json")
-                        .and()
-                        .body(courier)
-                        .when()
-                        .post("/api/v1/courier");
-        response.then().assertThat().body("ok", equalTo(true))
+        Response response = createCourier(courier);
+        response.then().assertThat().statusCode(201)
                 .and()
-                .statusCode(201);
-        response = given()
-                        .header("Content-type", "application/json")
-                        .and()
-                        .body(courier)
-                        .when()
-                        .post("/api/v1/courier");
-        response.then().assertThat()
-                .statusCode(409);
+                .body("ok", equalTo(true));
+        response = createCourier(courier);
+        response.then().assertThat().statusCode(409);
     }
 }
