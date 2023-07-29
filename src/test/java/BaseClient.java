@@ -3,7 +3,7 @@ import org.example.data.Courier;
 
 import static io.restassured.RestAssured.given;
 
-public class CourierUtils {
+public class BaseClient {
 
     public static final String BASE_URI = "http://qa-scooter.praktikum-services.ru/";
 

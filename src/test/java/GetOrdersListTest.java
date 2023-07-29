@@ -10,9 +10,8 @@ public class GetOrdersListTest extends BaseTest {
     @DisplayName("Получение списка заказов")
     public void getOrdersList() {
         Response response = OrderClient.getOrdersList();
-        response.then().assertThat().body("orders", notNullValue())
+        response.then().assertThat().statusCode(200)
                 .and()
-                .statusCode(200);
-
+                .body("orders", notNullValue());
     }
 }

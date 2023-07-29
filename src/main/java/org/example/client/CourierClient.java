@@ -1,5 +1,6 @@
 package org.example.client;
 
+import io.qameta.allure.Step;
 import io.restassured.response.Response;
 import org.example.data.Courier;
 
@@ -9,6 +10,7 @@ public class CourierClient {
 
     private static final String BASE_PATH = "/api/v1/courier";
 
+    @Step("Метод создание курьера")
     public static Response createCourier(Courier courier) {
         return given()
                 .header("Content-type", "application/json")
@@ -18,6 +20,7 @@ public class CourierClient {
                 .post(BASE_PATH);
     }
 
+    @Step("Метод авторизации курьера")
     public static Response loginCourier(Courier courier) {
         return given()
                 .header("Content-type", "application/json")

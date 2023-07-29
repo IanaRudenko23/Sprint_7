@@ -1,5 +1,6 @@
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
+import org.example.client.OrderClient;
 import org.example.data.Order;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -7,7 +8,6 @@ import org.junit.runners.Parameterized;
 
 import java.util.List;
 
-import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.notNullValue;
 
 @RunWith(Parameterized.class)
@@ -40,16 +40,8 @@ public class CreateOrderParametrizedTest extends BaseTest {
     @Test
     @DisplayName("Создание заказа самоката")
     public void createOrder() {
-        Response response =
-                given()
-                        .header("Content-type", "application/json")
-                        .and()
-                        .body(order)
-                        .when()
-                        .post("/api/v1/orders");
-        response.then().assertThat().statusCode(201)
-                .and()
-                .body("track", notNullValue());
+        Response response = OrderClient.createOrder(order);
+        response.then().assertThat().statusCode(201).and().body("track", notNullValue());
     }
 
 

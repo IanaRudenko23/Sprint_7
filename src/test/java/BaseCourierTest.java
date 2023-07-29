@@ -6,6 +6,6 @@ public class BaseCourierTest extends BaseTest {
 
     @After
     public void tearDown() {
-        CourierUtils.deleteCourier(login, password);
+        BaseClient.deleteCourier(login, password);
     }
 }
